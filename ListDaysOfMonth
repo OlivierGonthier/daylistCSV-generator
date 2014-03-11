@@ -1,18 +1,14 @@
 import Data.Time.Clock
 import Data.Time.Calendar
 
-currentDate :: IO(Integer, Int, Int)
+currentDate :: IO (Integer, Int, Int)
 currentDate = fmap (toGregorian . utctDay) getCurrentTime
 
-allDaysOfMonth :: Int -> [Day]
-allDaysOfMonth month = reverse.daysOfMonth month $ gregorianMonthLength 2014 month
-
-daysOfMonth :: Int -> Int -> [Day]
-daysOfMonth month 1 = [fromGregorian 2014 month 01]
-daysOfMonth month day = (fromGregorian 2014 month day):daysOfMonth month (day-1)
+daysOfMonth :: Integer -> Int -> [Day]
+daysOfMonth year month = map (fromGregorian year month) [1..gregorianMonthLength year month]
 
 main = do
-        (_, month, _) <- currentDate
-        let days = allDaysOfMonth month
-        putStrLn $ "Days: " ++ (show $ length days)
-        mapM_ (putStrLn.show) days
+    (year, month, _) <- currentDate
+    let days = daysOfMonth year month
+    putStrLn $ "Days: " ++ (show $ length days)
+    mapM_ print days
