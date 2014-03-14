@@ -1,6 +1,7 @@
 import Data.Time.Clock
 import Data.Time.Calendar
 import Data.Time.Format
+import Data.String.Utils
 import System.Locale
 import Text.CSV
 
@@ -18,7 +19,10 @@ getCSV [] = []
 getCSV (x:xs) = getRecord x:getCSV xs
 
 getRecord :: Field -> Record
-getRecord field = [field,"1"]
+getRecord field 
+    | startswith "Saturday" field = [field]
+    | startswith "Sunday" field = [field]
+    | otherwise = [field, "1"]
 
 main = do
     (year, month, _) <- currentDate
