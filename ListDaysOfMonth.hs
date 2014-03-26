@@ -16,6 +16,13 @@ data Opts = Opt
     , optHelp    :: Bool
     }
 
+data DefOpts = Opt
+    { optYear = 2014
+    , optMonth = 03
+    , optFR = False
+    , optHelp = False
+    }
+
 options :: [OptDescr (Opts -> IO Opts)]
 options =
     [ Option ['y'] ["year"] 
@@ -49,7 +56,7 @@ options =
         "Print this help message"
     ]
 
-
+-- ====Dates====
 currentDate :: IO (Integer, Int, Int)
 currentDate = fmap (toGregorian . utctDay) getCurrentTime
  
@@ -69,18 +76,7 @@ getRecord field
     | startswith "Sunday" field = [field]
     | otherwise = [field, "1"]
 
---groupArgs :: [String] -> [[String]]
---groupArgs = (map words).(filter ("" /=)).(split "-").unwords
-
---isolateArgWithValues :: [[String]] -> String -> [String] 
---isolateArgWithValues args option = head $ filter (\arg -> head arg == option) args
-
---getValues :: [[String]] -> String -> Int -> [String]
---getValues args option count = (take count).(drop 1) $ isolateArgWithValues args option
-
---extractValues :: [[String]] -> (Int, Int)
---extractValues args = (read (head $ getValues args "y" 1)::Int, read(head $ getValues args "m" 1)::Int)
-
+-- ====Main====
 main = do
     args <- getArgs
     case getOpt Permute options args of
