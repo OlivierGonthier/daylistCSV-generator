@@ -12,7 +12,7 @@ import System.Console.GetOpt
 data Opts = Opts
     { optYear    :: Integer
     , optMonth   :: Int
-    , optOutput  :: String
+    , optOutput  :: Maybe String
     , optFR      :: Bool
     , optHelp    :: Bool
     } deriving Show 
@@ -21,7 +21,7 @@ defOpts :: Opts
 defOpts = Opts
     { optYear    = 1970
     , optMonth   = 01
-    , optOutput  = ""
+    , optOutput  = Nothing
     , optFR      = False
     , optHelp    = False
     }
@@ -42,7 +42,7 @@ options =
 
     , Option ['o'] ["output"] 
         (ReqArg 
-            (\arg opt -> return opt { optOutput = arg })
+            (\arg opt -> return opt { optOutput = Just arg })
             "FILENAME") 
         "Output result in file"
 
@@ -80,6 +80,14 @@ getRecord field
     | startswith "Sunday" field = [field]
     | otherwise = [field, "1"]
 
+printResult :: CSV -> Maybe String ->  IO()
+printResult csv file =
+    case file of
+        Nothing -> do
+            putStrLn $ printCSV csv 
+        Just file -> do
+            writeFile file $ printCSV csv 
+
 -- | Main
 
 main = do
@@ -95,7 +103,8 @@ main = do
              , optFR = frFlag
              , optHelp = helpFlag
              } = opts
+
     let days = daysOfMonth (fromIntegral year) month
     let daysFormatted = formatDays days  
     let csv = getCSV daysFormatted
-    putStrLn $ printCSV csv 
+    printResult csv output
