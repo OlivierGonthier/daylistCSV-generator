@@ -87,6 +87,7 @@ printResult csv Nothing = do
     putStrLn $ printCSV csv 
 printResult csv (Just file) = do
     writeFile file $ printCSV csv 
+    putStrLn $ "File \"" ++ file ++ "\" has been written."
 
 -- | Main
 
@@ -96,9 +97,11 @@ main = do
     
     rawArgs <- getArgs
     let (actions, args, errs) = getOpt Permute options rawArgs
+
     unless (null errs) $ do
         putStrLn $ concat (errs ++ ["Try ListDaysOfMonth --help for more information."])
-        exitFailure 
+        exitFailure
+ 
     opts <- foldl (>>=) (return defOpts') actions
     let Opts { optYear = year
              , optMonth = month
