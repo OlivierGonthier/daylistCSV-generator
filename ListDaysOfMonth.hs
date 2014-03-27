@@ -9,7 +9,7 @@ import System.Console.GetOpt
 
 -- | Args
 
-data Opts = Opt
+data Opts = Opts
     { optYear    :: Integer
     , optMonth   :: Int
     , optOutput  :: String
@@ -18,7 +18,7 @@ data Opts = Opt
     } deriving Show 
 
 defOpts :: Opts
-defOpts = Opt
+defOpts = Opts
     { optYear    = 2014
     , optMonth   = 03
     , optOutput  = ""
@@ -59,7 +59,7 @@ options =
         "Print this help message"
     ]
 
--- | Dates and methods functions
+-- | Dates and csv functions
 
 currentDate :: IO (Integer, Int, Int)
 currentDate = fmap (toGregorian . utctDay) getCurrentTime
@@ -81,12 +81,18 @@ getRecord field
     | otherwise = [field, "1"]
 
 -- | Main
+
 main = do
     rawArgs <- getArgs
     let (actions, args, errs) = getOpt Permute options rawArgs
     opts <- foldl (>>=) (return defOpts) actions
-    print opts
-    (year, month, _) <- currentDate
+    let Opts { optYear = year
+             , optMonth = month
+             , optOutput = output
+             , optFR = frFlag
+             , optHelp = helpFlag
+             } = opts
+    --(year, month, _) <- currentDate
     let days = daysOfMonth (fromIntegral year) month
     let daysFormatted = formatDays days  
     let csv = getCSV daysFormatted
