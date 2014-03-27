@@ -63,14 +63,45 @@ options =
 
 -- | Dates and csv functions
 
+frenchTimeLocale :: TimeLocale 
+frenchTimeLocale =  TimeLocale { 
+        wDays  = [("Dimanche",   "Dim"),  ("Lundi",    "Lun"),   
+                  ("Mardi",  "Mar"),  ("Mercredi", "Mer"), 
+                  ("Jeudi", "Jeu"),  ("Vendredi",    "Ven"), 
+                  ("Samedi", "Sam")],
+
+        months = [("Janvier",   "Jan"), ("Février",  "Fev"),
+                  ("Mars",     "Mar"), ("Avril",     "Avr"),
+                  ("Mai",       "Mai"), ("Juin",      "Juin"),
+                  ("Juillet",      "Juil"), ("Août",    "Aou"),
+                  ("Septembre", "Sep"), ("Octobre",   "Oct"),
+                  ("Novembre",  "Nov"), ("Décembre",  "Dec")],
+
+        intervals = [ ("année","années")
+                    , ("mois", "mois")
+                    , ("jour","jours")
+                    , ("heure","heures")
+                    , ("min","mins")
+                    , ("sec","secs")
+                    , ("usec","usecs")
+                    ],
+
+        amPm = ("AM", "PM"),
+        dateTimeFmt = "%A %e %B %Y %H:%M:%S %Z",
+        dateFmt = "%d/%m/%y",
+        timeFmt = "%H:%M:%S",
+        time12Fmt = "%I:%M:%S %p"
+        }
+
+
 currentDate :: IO (Integer, Int, Int)
 currentDate = fmap (toGregorian . utctDay) getCurrentTime
  
 daysOfMonth :: Integer -> Int -> [Day]
 daysOfMonth year month = map (fromGregorian year month) [1..gregorianMonthLength year month]
 
-formatDays :: [Day] -> [String]
-formatDays = map (formatTime defaultTimeLocale "%A %d %B %Y") 
+formatDays :: TimeLocale -> [Day] -> [String]
+formatDays timeLocale = map (formatTime timeLocale "%A %d %B %Y") 
 
 getCSV :: [Field] -> CSV
 getCSV [] = []
@@ -80,6 +111,8 @@ getRecord :: Field -> Record
 getRecord field 
     | startswith "Saturday" field = [field]
     | startswith "Sunday" field = [field]
+    | startswith "Samedi" field = [field]
+    | startswith "Dimanche" field = [field]
     | otherwise = [field, "1"]
 
 printResult :: CSV -> Maybe String ->  IO()
@@ -114,7 +147,11 @@ main = do
         putStrLn $ usageInfo "" options
         exitSuccess
 
+    let timeLocale = if frFlag 
+        then frenchTimeLocale
+        else defaultTimeLocale
+
     let days = daysOfMonth (fromIntegral year) month
-    let daysFormatted = formatDays days  
+    let daysFormatted = formatDays timeLocale days  
     let csv = getCSV daysFormatted
     printResult csv output
