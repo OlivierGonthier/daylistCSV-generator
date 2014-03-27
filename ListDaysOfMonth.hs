@@ -19,8 +19,8 @@ data Opts = Opts
 
 defOpts :: Opts
 defOpts = Opts
-    { optYear    = 2014
-    , optMonth   = 03
+    { optYear    = 1970
+    , optMonth   = 01
     , optOutput  = ""
     , optFR      = False
     , optHelp    = False
@@ -83,16 +83,18 @@ getRecord field
 -- | Main
 
 main = do
+    (currentYear, currentMonth, _) <- currentDate
+    let defOpts' = defOpts{ optYear = currentYear, optMonth = currentMonth }
+    
     rawArgs <- getArgs
     let (actions, args, errs) = getOpt Permute options rawArgs
-    opts <- foldl (>>=) (return defOpts) actions
+    opts <- foldl (>>=) (return defOpts') actions
     let Opts { optYear = year
              , optMonth = month
              , optOutput = output
              , optFR = frFlag
              , optHelp = helpFlag
              } = opts
-    --(year, month, _) <- currentDate
     let days = daysOfMonth (fromIntegral year) month
     let daysFormatted = formatDays days  
     let csv = getCSV daysFormatted
