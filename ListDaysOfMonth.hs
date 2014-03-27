@@ -81,12 +81,10 @@ getRecord field
     | otherwise = [field, "1"]
 
 printResult :: CSV -> Maybe String ->  IO()
-printResult csv file =
-    case file of
-        Nothing -> do
-            putStrLn $ printCSV csv 
-        Just file -> do
-            writeFile file $ printCSV csv 
+printResult csv Nothing = do
+    putStrLn $ printCSV csv 
+printResult csv (Just file) = do
+    writeFile file $ printCSV csv 
 
 -- | Main
 
