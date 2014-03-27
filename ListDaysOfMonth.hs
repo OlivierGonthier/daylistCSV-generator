@@ -7,20 +7,23 @@ import System.Environment
 import Text.CSV
 import System.Console.GetOpt
 
--- ====Args====
+-- | Args
+
 data Opts = Opt
     { optYear    :: Integer
     , optMonth   :: Int
     , optOutput  :: String
     , optFR      :: Bool
     , optHelp    :: Bool
-    }
+    } deriving Show 
 
-data DefOpts = Opt
-    { optYear = 2014
-    , optMonth = 03
-    , optFR = False
-    , optHelp = False
+defOpts :: Opts
+defOpts = Opt
+    { optYear    = 2014
+    , optMonth   = 03
+    , optOutput  = ""
+    , optFR      = False
+    , optHelp    = False
     }
 
 options :: [OptDescr (Opts -> IO Opts)]
@@ -56,7 +59,8 @@ options =
         "Print this help message"
     ]
 
--- ====Dates====
+-- | Dates and methods functions
+
 currentDate :: IO (Integer, Int, Int)
 currentDate = fmap (toGregorian . utctDay) getCurrentTime
  
@@ -76,14 +80,12 @@ getRecord field
     | startswith "Sunday" field = [field]
     | otherwise = [field, "1"]
 
--- ====Main====
+-- | Main
 main = do
-    args <- getArgs
-    case getOpt Permute options args of
-        (args, _, []) -> do
-            putStrLn "It works!"
-        (_, _, errs) -> do
-            putStrLn "Arg Error"
+    rawArgs <- getArgs
+    let (actions, args, errs) = getOpt Permute options rawArgs
+    opts <- foldl (>>=) (return defOpts) actions
+    print opts
     (year, month, _) <- currentDate
     let days = daysOfMonth (fromIntegral year) month
     let daysFormatted = formatDays days  
