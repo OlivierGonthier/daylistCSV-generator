@@ -99,7 +99,7 @@ main = do
     let (actions, args, errs) = getOpt Permute options rawArgs
 
     unless (null errs) $ do
-        putStrLn $ concat (errs ++ ["Try ListDaysOfMonth --help for more information."])
+        putStrLn $ concat errs ++ usageInfo "" options
         exitFailure
  
     opts <- foldl (>>=) (return defOpts') actions
@@ -109,6 +109,10 @@ main = do
              , optFR = frFlag
              , optHelp = helpFlag
              } = opts
+
+    when helpFlag $ do
+        putStrLn $ usageInfo "" options
+        exitSuccess
 
     let days = daysOfMonth (fromIntegral year) month
     let daysFormatted = formatDays days  
