@@ -6,6 +6,8 @@ import System.Locale
 import System.Environment
 import Text.CSV
 import System.Console.GetOpt
+import System.Exit
+import Control.Monad
 
 -- | Args
 
@@ -94,6 +96,9 @@ main = do
     
     rawArgs <- getArgs
     let (actions, args, errs) = getOpt Permute options rawArgs
+    unless (null errs) $ do
+        putStrLn $ concat (errs ++ ["Try ListDaysOfMonth --help for more information."])
+        exitFailure 
     opts <- foldl (>>=) (return defOpts') actions
     let Opts { optYear = year
              , optMonth = month
